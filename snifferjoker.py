@@ -2,7 +2,7 @@ import os
 from scapy.all import sniff, IP, TCP, UDP, ARP, DNS
 from datetime import datetime
 
-os.system('clear' if os.name == 'nt' else 'cls')
+os.system('cls' if os.name == 'nt' else 'clear')
 
 print("\033[1;32;40m" + "=" * 120)
 print("███████╗███╗   ██╗██╗███████╗███████╗███████╗██████╗          ██╗ ██████╗ ██╗  ██╗███████╗██████╗")
@@ -55,7 +55,20 @@ def log_packet_broxa(packet):
         print(f"IP de destino: {packet[ARP].pdst}")
     
     print("=" * 60 + "\n")
+    
+def detect_open_ports(packet):
+    """ detecta pacotes de TCP ou UDP com portas abertas """
+    if IP in packet:
+        ip_src = packet[IP].src
+        ip_dst = packet[IP].dst
+        
+        if TCP in packet or UDP in packet:
+            if TCP in packet:
+                port = packet[TCP].dport
+            else:
+                port = packet[UDP].dport
 
+            print(f"Detecção de porta aberta: {ip_src} -> {ip_dst} Porta: {port}")
 
 def start_sniffer(filter_protocol=None):
     """
@@ -69,7 +82,7 @@ def start_sniffer(filter_protocol=None):
     except PermissionError:
         print("\033[1;31m[ERROR] Sua permissão foi negada. Execute o script como administrador/root.\033[0m")
     except KeyboardInterrupt:
-        print("\n\033[1;31m[INFO] Captura encerrada pelo usuário\033[0m")
+        print("\n\033[1;31m Captura encerrada pelo usuário\033[0m")
 
 
 if __name__ == "__main__":
@@ -79,6 +92,7 @@ if __name__ == "__main__":
     print("3. Capturar pacotes UDP")
     print("4. Capturar pacotes DNS")
     print("5. Capturar pacotes ARP")
+    print("6. Detectar portas abertas")
     choice = input("\nEscolha uma das opções: ")
 
     filter_option = None
@@ -90,5 +104,8 @@ if __name__ == "__main__":
         filter_option = "udp port 53"  # DNS usa UDP na porta 53
     elif choice == "5":
         filter_option = "arp"
+    elif choice == "6":
+        filter_option == None
+        
 
     start_sniffer(filter_option)
